@@ -1,0 +1,10 @@
+# IDE
+.vscode/
+*.code-workspace
+
+# Generated images
+*.png
+
+# Python
+__pycache__/
+*.pyc
