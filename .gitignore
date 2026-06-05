@@ -14,3 +14,6 @@ cleaned_dataset_no_smoothing.csv
 # Python
 __pycache__/
 *.pyc
+
+# TEX
+out/
