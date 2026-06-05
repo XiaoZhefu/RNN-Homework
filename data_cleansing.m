@@ -20,12 +20,12 @@ for i = 1:width(data)
 end
 
 % 确认加载结果
-disp('  原始数据加载完成。');
-disp(['  列数: ', num2str(width(data))]);
-disp(['  行数: ', num2str(height(data))]);
-disp(['  特征列: ', strjoin(varNameFeature, ', ')]);
-disp(['  目标列: ', strjoin(varNameTarget, ', ')]);
-disp(['  其他列: ', strjoin(varNameExtra, ', ')]);
+disp('    原始数据加载完成。');
+disp(['    列数: ', num2str(width(data))]);
+disp(['    行数: ', num2str(height(data))]);
+disp(['    特征列: ', strjoin(varNameFeature, ', ')]);
+disp(['    目标列: ', strjoin(varNameTarget, ', ')]);
+disp(['    其他列: ', strjoin(varNameExtra, ', ')]);
 
 %% 数据预处理
 sFactor = 0.25;  % 平滑因子
@@ -46,7 +46,7 @@ F3 = normalize(F3Raw, 'zscore');
 F4 = normalize(F4Raw, 'zscore');
 
 % 输出信息
-disp('  预处理完成：特征平滑+归一化，标签仅归一化。');
+disp('    预处理完成：特征平滑+归一化，标签仅归一化。');
 
 %% 绘制 zc.. 和 F1 原始数据与处理后数据对比图
 N = height(data);
@@ -92,6 +92,6 @@ if ~exist(output_dir, 'dir')
     mkdir(output_dir);
 end
 exportgraphics(gcf, fullfile(output_dir, 'zc_and_F1_comparison.png'), 'Resolution', 600);
-disp(['  图像已保存至: ', fullfile(output_dir, 'zc_and_F1_comparison.png')]);
+disp(['    图像已保存至: ', fullfile(output_dir, 'zc_and_F1_comparison.png')]);
 
 
