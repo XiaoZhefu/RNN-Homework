@@ -40,8 +40,17 @@ F1 = normalize(F1Raw, 'zscore');
 F2 = normalize(F2Raw, 'zscore');
 F3 = normalize(F3Raw, 'zscore');
 F4 = normalize(F4Raw, 'zscore');
+% 对比方案：特征 X 不平滑，仅做 Z-score 归一化
+zcDdotNoSmooth      = normalize(zcDdotRaw,      'zscore');
+alphacDdotNoSmooth  = normalize(alphacDdotRaw,  'zscore');
+beitacDdotNoSmooth  = normalize(beitacDdotRaw,  'zscore');
+zb1DdotNoSmooth     = normalize(zb1DdotRaw,     'zscore');
+alphab1DdotNoSmooth = normalize(alphab1DdotRaw, 'zscore');
+zb2DdotNoSmooth     = normalize(zb2DdotRaw,     'zscore');
+alphab2DdotNoSmooth = normalize(alphab2DdotRaw, 'zscore');
 % 输出信息
 disp('    预处理完成：特征平滑+归一化，标签仅归一化。');
+disp('    对比方案预处理完成：特征仅归一化，标签仅归一化。');
 
 %% 导出清洗后数据
 % 保持原 CSV 前 11 列的列名和顺序，仅替换为清洗后的数据
@@ -60,6 +69,22 @@ cleanedData{:, 11} = table2array(F4);
 cleaned_data_path = fullfile(script_dir, 'cleaned_dataset.csv');
 writetable(cleanedData, cleaned_data_path);
 disp(['    清洗后数据已保存至: ', cleaned_data_path]);
+% 对比方案：不平滑，仅归一化
+cleanedDataNoSmoothing = data(:, 1:11);
+cleanedDataNoSmoothing{:, 1}  = table2array(zcDdotNoSmooth);
+cleanedDataNoSmoothing{:, 2}  = table2array(alphacDdotNoSmooth);
+cleanedDataNoSmoothing{:, 3}  = table2array(beitacDdotNoSmooth);
+cleanedDataNoSmoothing{:, 4}  = table2array(zb1DdotNoSmooth);
+cleanedDataNoSmoothing{:, 5}  = table2array(alphab1DdotNoSmooth);
+cleanedDataNoSmoothing{:, 6}  = table2array(zb2DdotNoSmooth);
+cleanedDataNoSmoothing{:, 7}  = table2array(alphab2DdotNoSmooth);
+cleanedDataNoSmoothing{:, 8}  = table2array(F1);
+cleanedDataNoSmoothing{:, 9}  = table2array(F2);
+cleanedDataNoSmoothing{:, 10} = table2array(F3);
+cleanedDataNoSmoothing{:, 11} = table2array(F4);
+cleaned_data_no_smoothing_path = fullfile(script_dir, 'cleaned_dataset_no_smoothing.csv');
+writetable(cleanedDataNoSmoothing, cleaned_data_no_smoothing_path);
+disp(['    对比方案清洗数据已保存至: ', cleaned_data_no_smoothing_path]);
 
 %% 绘制 zc.. 和 F1 原始数据与处理后数据对比图
 N = height(data);
@@ -102,3 +127,39 @@ if ~exist(output_dir, 'dir')
 end
 exportgraphics(gcf, fullfile(output_dir, 'zc_and_F1_comparison.png'), 'Resolution', 600);
 disp(['    图像已保存至: ', fullfile(output_dir, 'zc_and_F1_comparison.png')]);
+
+%% 绘制 zc.. 和 F1 原始数据与仅归一化数据对比图
+f02 = figure(2);
+f02.Position = [0, 0, 900, 500];
+% 子图 1：zc.. 原始数据与仅归一化数据
+subplot(2, 1, 1);
+hold on;
+grid on;
+h5 = plot(t, data.('zc..'), 'Color', [0.0000 0.4470 0.7410 0.25], 'LineWidth', 1);               % 原始数据，25% 不透明
+h6 = plot(t, table2array(zcDdotNoSmooth), 'Color', [0.0000 0.4470 0.7410 1.0], 'LineWidth', 1.2); % 仅归一化数据，100% 不透明
+title('Car Body Vertical Acceleration zc.. (Raw vs Normalized)', 'FontSize', 16, 'FontWeight', 'bold');
+xlabel('Data Index (\times 10^4)', 'FontSize', 12);
+ylabel('Acceleration', 'FontSize', 12);
+legend([h5, h6], {'Raw', 'Normalized'}, 'Location', 'southeast', 'FontSize', 10);
+xlim([0 230] / 1e4);
+set(gca, 'FontName', 'Times New Roman', 'FontSize', 12);
+% 子图 2：F1 原始数据与归一化后数据
+subplot(2, 1, 2);
+hold on;
+grid on;
+yyaxis left;
+h7 = plot(t, data.('F1'), 'Color', [0.8500 0.3250 0.0980 0.25], 'LineWidth', 1);      % 原始数据，25% 不透明
+ylabel('Vertical Force', 'FontSize', 12);
+set(gca, 'YColor', 'k');
+yyaxis right;
+h8 = plot(t, table2array(F1), 'Color', [0.8500 0.3250 0.0980 1.0], 'LineWidth', 1.2); % 归一化后数据，100% 不透明
+ylabel('Normalized Value', 'FontSize', 12);
+set(gca, 'YColor', 'k');
+title('Wheel-1 Vertical Force F1 (Raw vs Normalized)', 'FontSize', 16, 'FontWeight', 'bold');
+xlabel('Data Index (\times 10^4)', 'FontSize', 12);
+legend([h7, h8], {'Raw', 'Normalized'}, 'Location', 'southeast', 'FontSize', 10);
+set(gca, 'FontName', 'Times New Roman', 'FontSize', 12);
+xlim([0 230] / 1e4);
+% 保存对比方案图像
+exportgraphics(gcf, fullfile(output_dir, 'zc_and_F1_no_smoothing_comparison.png'), 'Resolution', 600);
+disp(['    对比图像已保存至: ', fullfile(output_dir, 'zc_and_F1_no_smoothing_comparison.png')]);

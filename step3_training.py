@@ -23,14 +23,31 @@ from step2_model_design import (
 SCRIPT_DIR = Path(__file__).resolve().parent
 MODEL_DIR = SCRIPT_DIR / "models"
 OUTPUT_DIR = SCRIPT_DIR / "outputdata"
-
+NO_SMOOTHING_DATA_PATH = SCRIPT_DIR / "cleaned_dataset_no_smoothing.csv"
 # 训练超参数
-TRAIN_RATIO = 0.8
+TRAIN_RATIO = 0.70
+VAL_RATIO = 0.15
+TEST_RATIO = 0.15
 LEARNING_RATE = 1e-3
 MAX_EPOCHS = 100
 PATIENCE = 10
 WEIGHT_DECAY = 1e-5
 RANDOM_SEED = 42
+# 两套预处理数据：保留原有输出命名，新增对比方案输出命名
+DATASET_CONFIGS = [
+    {
+        "name": "平滑+归一化",
+        "data_path": DATA_PATH,
+        "model_prefix": "",
+        "loss_file": "loss_history.csv",
+    },
+    {
+        "name": "仅归一化",
+        "data_path": NO_SMOOTHING_DATA_PATH,
+        "model_prefix": "no_smoothing_",
+        "loss_file": "loss_history_no_smoothing.csv",
+    },
+]
 
 
 def set_random_seed(seed):
@@ -42,22 +59,26 @@ def set_random_seed(seed):
         torch.cuda.manual_seed_all(seed)
 
 
-def load_sequence_data():
+def load_sequence_data(data_path=DATA_PATH):
     """读取清洗后的数据，并转换成 RNN 需要的三维时间序列样本。"""
-    data = pd.read_csv(DATA_PATH)
+    data = pd.read_csv(data_path)
     features = data[FEATURE_COLUMNS].to_numpy(dtype=np.float32)
     targets = data[TARGET_COLUMNS].to_numpy(dtype=np.float32)
     return make_sequences(features, targets, SEQ_LEN)
 
 
-def split_train_val(x_seq, y_seq, train_ratio):
-    """按时间顺序划分训练集和验证集，避免时间序列信息泄漏。"""
+def split_train_val_test(x_seq, y_seq, train_ratio, val_ratio):
+    """按时间顺序划分训练集、验证集和测试集，避免时间序列信息泄漏。"""
     train_size = int(len(x_seq) * train_ratio)
+    val_size = int(len(x_seq) * val_ratio)
+    val_end = train_size + val_size
     return (
         x_seq[:train_size],
         y_seq[:train_size],
-        x_seq[train_size:],
-        y_seq[train_size:],
+        x_seq[train_size:val_end],
+        y_seq[train_size:val_end],
+        x_seq[val_end:],
+        y_seq[val_end:],
     )
 
 
@@ -110,7 +131,7 @@ def validate_one_epoch(model, dataloader, criterion, device):
     return total_loss / total_count
 
 
-def train_model(model_name, model, train_loader, val_loader, device):
+def train_model(model_name, model, model_prefix, train_loader, val_loader, device):
     """训练指定模型，使用验证损失保存最优权重，并通过早停防止过拟合。"""
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(
@@ -124,7 +145,7 @@ def train_model(model_name, model, train_loader, val_loader, device):
     best_epoch = 0
     patience_count = 0
     history = []
-    model_path = MODEL_DIR / f"{model_name.lower()}_best.pt"
+    model_path = MODEL_DIR / f"{model_prefix}{model_name.lower()}_best.pt"
 
     print_tag("Step", f"训练 {model_name} 模型")
 
@@ -162,26 +183,26 @@ def train_model(model_name, model, train_loader, val_loader, device):
     return history
 
 
-def main():
-    print("=" * 60)
-    print("  3. 模型训练")
-    print("=" * 60)
-    print("  [Step] 划分训练集与验证集")
-    print("  [File] 清洗数据 : cleaned_dataset.csv")
+def train_dataset(config, device):
+    """对某一种预处理数据分别训练 LSTM 和 GRU。"""
     print("-" * 60)
+    print_tag("Data", f"当前预处理方案: {config['name']}")
+    print_tag("File", f"训练数据: {config['data_path'].name}")
 
-    set_random_seed(RANDOM_SEED)
-    MODEL_DIR.mkdir(exist_ok=True)
-    OUTPUT_DIR.mkdir(exist_ok=True)
-
-    x_seq, y_seq = load_sequence_data()
-    x_train, y_train, x_val, y_val = split_train_val(x_seq, y_seq, TRAIN_RATIO)
+    x_seq, y_seq = load_sequence_data(config["data_path"])
+    x_train, y_train, x_val, y_val, x_test, y_test = split_train_val_test(
+        x_seq,
+        y_seq,
+        TRAIN_RATIO,
+        VAL_RATIO,
+    )
     train_loader = build_dataloader(x_train, y_train, BATCH_SIZE, shuffle=True)
     val_loader = build_dataloader(x_val, y_val, BATCH_SIZE, shuffle=False)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     print_tag("Input", f"训练集 X: {x_train.shape}, y: {y_train.shape}")
     print_tag("Label", f"验证集 X: {x_val.shape}, y: {y_val.shape}")
+    print_tag("Test", f"测试集 X: {x_test.shape}, y: {y_test.shape}")
+    print_tag("Param", f"划分比例: 训练 {TRAIN_RATIO:.0%}, 验证 {VAL_RATIO:.0%}, 测试 {TEST_RATIO:.0%}")
     print_tag("Param", f"批量大小: {BATCH_SIZE}, 学习率: {LEARNING_RATE}")
     print_tag("Param", f"最大轮数: {MAX_EPOCHS}, 早停耐心值: {PATIENCE}")
     print_tag("Param", f"优化器: Adam, 权重衰减: {WEIGHT_DECAY}")
@@ -189,16 +210,35 @@ def main():
     print("-" * 60)
 
     all_history = []
-    all_history.extend(train_model("LSTM", LSTMRegressor(), train_loader, val_loader, device))
+    set_random_seed(RANDOM_SEED)
+    all_history.extend(train_model("LSTM", LSTMRegressor(), config["model_prefix"], train_loader, val_loader, device))
     print("-" * 60)
-    all_history.extend(train_model("GRU", GRURegressor(), train_loader, val_loader, device))
+    set_random_seed(RANDOM_SEED)
+    all_history.extend(train_model("GRU", GRURegressor(), config["model_prefix"], train_loader, val_loader, device))
 
-    loss_path = OUTPUT_DIR / "loss_history.csv"
+    loss_path = OUTPUT_DIR / config["loss_file"]
     pd.DataFrame(all_history).to_csv(loss_path, index=False, encoding="utf-8-sig")
-
     print("-" * 60)
     print_tag("File", f"训练损失: {loss_path}")
     print_tag("File", f"模型权重: {MODEL_DIR}")
+
+
+def main():
+    print("=" * 60)
+    print("  3. 模型训练")
+    print("=" * 60)
+    print("  [Step] 按时间顺序划分训练集、验证集与测试集")
+    print("  [File] 清洗数据 : cleaned_dataset.csv")
+    print("  [File] 对比数据 : cleaned_dataset_no_smoothing.csv")
+    print("-" * 60)
+
+    MODEL_DIR.mkdir(exist_ok=True)
+    OUTPUT_DIR.mkdir(exist_ok=True)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    for config in DATASET_CONFIGS:
+        train_dataset(config, device)
+
     print("-" * 60)
     print("  [Done] 模型训练完成")
     print("=" * 60)

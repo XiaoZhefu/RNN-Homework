@@ -8,6 +8,7 @@ import torch.nn as nn
 # 基础路径与数据文件
 SCRIPT_DIR = Path(__file__).resolve().parent
 DATA_PATH = SCRIPT_DIR / "cleaned_dataset.csv"
+NO_SMOOTHING_DATA_PATH = SCRIPT_DIR / "cleaned_dataset_no_smoothing.csv"
 # 时间序列样本与模型超参数
 SEQ_LEN = 50
 BATCH_SIZE = 32
@@ -117,6 +118,14 @@ def make_sequences(features, targets, seq_len):
     return np.asarray(x_seq, dtype=np.float32), np.asarray(y_seq, dtype=np.float32)
 
 
+def load_sequences_from_csv(data_path):
+    """读取指定清洗数据文件，并构造时间序列样本。"""
+    data = pd.read_csv(data_path)
+    features = data[FEATURE_COLUMNS].to_numpy(dtype=np.float32)
+    targets = data[TARGET_COLUMNS].to_numpy(dtype=np.float32)
+    return make_sequences(features, targets, SEQ_LEN)
+
+
 def count_parameters(model):
     """统计模型中需要训练的参数数量。"""
     return sum(param.numel() for param in model.parameters() if param.requires_grad)
@@ -138,13 +147,13 @@ def main():
     print("-" * 60)
 
     # 读取清洗后的 7 个输入特征和 4 个输出标签
-    data = pd.read_csv(DATA_PATH)
-    features = data[FEATURE_COLUMNS].to_numpy(dtype=np.float32)
-    targets = data[TARGET_COLUMNS].to_numpy(dtype=np.float32)
-    x_seq, y_seq = make_sequences(features, targets, SEQ_LEN)
+    x_seq, y_seq = load_sequences_from_csv(DATA_PATH)
+    x_seq_no_smoothing, y_seq_no_smoothing = load_sequences_from_csv(NO_SMOOTHING_DATA_PATH)
 
-    print_tag("Input", f"X 形状: {x_seq.shape}")
-    print_tag("Label", f"y 形状: {y_seq.shape}")
+    print_tag("Input", f"平滑+归一化 X: {x_seq.shape}")
+    print_tag("Label", f"平滑+归一化 y: {y_seq.shape}")
+    print_tag("Input", f"仅归一化 X: {x_seq_no_smoothing.shape}")
+    print_tag("Label", f"仅归一化 y: {y_seq_no_smoothing.shape}")
     print_tag("Param", f"时间窗口长度: {SEQ_LEN}")
     print("-" * 60)
     print("  [Step] 构建 LSTM 基准模型与 GRU 对比模型")
