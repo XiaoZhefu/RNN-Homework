@@ -6,12 +6,14 @@ from scipy.signal import savgol_filter
 from sklearn.preprocessing import StandardScaler
 import subprocess
 
+
 # 1. 数据准备 - 加载与清洗数据
 print("=" * 60)
 print("  1. 数据准备：加载与清洗数据")
 print("=" * 60)
 print("  [Step] 调用 MATLAB 数据清洗脚本")
-print("  [File] data_cleansing.m")
+print("  [File] MATLAB脚本 : data_cleansing.m")
+print("  [File] 原始数据   : Dateset_For_homework.csv")
 print("-" * 60)
 subprocess.run(['matlab', '-batch', "run('data_cleansing.m')"])
 print("-" * 60)

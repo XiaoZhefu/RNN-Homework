@@ -3,6 +3,8 @@
 *.code-workspace
 
 # Generated images
+outputpics/
+cleaned_dataset.csv
 *.png
 
 # Python
