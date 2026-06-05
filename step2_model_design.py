@@ -1,12 +1,14 @@
-﻿from pathlib import Path
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
 
 
+# 基础路径与数据文件
 SCRIPT_DIR = Path(__file__).resolve().parent
 DATA_PATH = SCRIPT_DIR / "cleaned_dataset.csv"
+# 时间序列样本与模型超参数
 SEQ_LEN = 50
 BATCH_SIZE = 32
 INPUT_SIZE = 7
@@ -18,8 +20,11 @@ PRINT_TAG_WIDTH = 9
 
 
 def print_tag(tag, message):
+    """按照统一格式打印步骤信息，使中括号后的正文起点对齐。"""
     print(f"  [{tag}]".ljust(PRINT_TAG_WIDTH + 2) + message)
 
+
+# cleaned_dataset.csv 沿用原始 CSV 的前 11 列列名
 FEATURE_COLUMNS = [
     "zc..",
     "alpha_c..",
@@ -33,7 +38,7 @@ TARGET_COLUMNS = ["F1", "F2", "F3", "F4"]
 
 
 class LSTMRegressor(nn.Module):
-    """LSTM baseline for multi-output time series regression."""
+    """用于多输出时间序列回归的 LSTM 基准模型。"""
 
     def __init__(
         self,
@@ -44,6 +49,8 @@ class LSTMRegressor(nn.Module):
         dropout=DROPOUT,
     ):
         super().__init__()
+
+        # LSTM 负责提取时间窗口内的序列特征
         self.lstm = nn.LSTM(
             input_size=input_size,
             hidden_size=hidden_size,
@@ -51,6 +58,8 @@ class LSTMRegressor(nn.Module):
             batch_first=True,
             dropout=dropout if num_layers > 1 else 0.0,
         )
+
+        # 回归头将最后一个时间步的隐状态映射到 F1-F4
         self.regressor = nn.Sequential(
             nn.Linear(hidden_size, 32),
             nn.ReLU(),
@@ -65,7 +74,7 @@ class LSTMRegressor(nn.Module):
 
 
 class GRURegressor(nn.Module):
-    """GRU comparison model with the same regression head as LSTM."""
+    """用于对比实验的 GRU 模型，回归头与 LSTM 保持一致。"""
 
     def __init__(
         self,
@@ -76,6 +85,8 @@ class GRURegressor(nn.Module):
         dropout=DROPOUT,
     ):
         super().__init__()
+
+        # GRU 参数量少于 LSTM，可作为轻量级对比模型
         self.gru = nn.GRU(
             input_size=input_size,
             hidden_size=hidden_size,
@@ -97,6 +108,7 @@ class GRURegressor(nn.Module):
 
 
 def make_sequences(features, targets, seq_len):
+    """用过去 seq_len 个时间步的 7 维特征预测当前时刻 F1-F4。"""
     x_seq = []
     y_seq = []
     for index in range(seq_len, len(features)):
@@ -106,10 +118,12 @@ def make_sequences(features, targets, seq_len):
 
 
 def count_parameters(model):
+    """统计模型中需要训练的参数数量。"""
     return sum(param.numel() for param in model.parameters() if param.requires_grad)
 
 
 def print_model_info(name, model):
+    """打印模型结构名和可训练参数数量。"""
     print_tag("Model", name)
     print(" " * (PRINT_TAG_WIDTH + 2) + f"结构类名: {model.__class__.__name__}")
     print(" " * (PRINT_TAG_WIDTH + 2) + f"可训练参数: {count_parameters(model):,}")
@@ -123,6 +137,7 @@ def main():
     print("  [File] 清洗数据 : cleaned_dataset.csv")
     print("-" * 60)
 
+    # 读取清洗后的 7 个输入特征和 4 个输出标签
     data = pd.read_csv(DATA_PATH)
     features = data[FEATURE_COLUMNS].to_numpy(dtype=np.float32)
     targets = data[TARGET_COLUMNS].to_numpy(dtype=np.float32)
@@ -141,6 +156,7 @@ def main():
     print_model_info("GRU 对比模型", gru_model)
     print("-" * 60)
 
+    # 用一个小批量样本检查模型输入输出维度是否符合预期
     sample_x = torch.from_numpy(x_seq[:BATCH_SIZE])
     with torch.no_grad():
         lstm_y = lstm_model(sample_x)
