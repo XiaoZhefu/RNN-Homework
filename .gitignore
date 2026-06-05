@@ -3,9 +3,10 @@
 *.code-workspace
 
 # Generated images
+models/
+outputdata/
 outputpics/
 cleaned_dataset.csv
-*.png
 
 # Python
 __pycache__/
