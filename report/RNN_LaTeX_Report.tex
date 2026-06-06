@@ -220,24 +220,24 @@ torch官方文档中给出的LSTM公式\textsuperscript{\color{red}\cite{ref2}}�
     \vspace{-0.3cm}
     \footnotesize\renewcommand{\arraystretch}{1.15}\begin{tabular}{ccp{7.2cm}}
         \specialrule{\heavyrulewidth}{0pt}{0pt}
-        \cellcolor{gray!20}变量 & \cellcolor{gray!20}含义 & \cellcolor{gray!20}\centering\arraybackslash 说明    \\
+        \cellcolor{gray!20}变量 & \cellcolor{gray!20}含义 & \cellcolor{gray!20}\centering\arraybackslash 说明      \\
         \specialrule{\lightrulewidth}{0pt}{0pt}
-        $i_t$                 & 输入门                   & 控制候选记忆 $g_t$ 写入细胞状态 $c_t$ 的比例                      \\
-        $f_t$                 & 遗忘门                   & 控制上一细胞状态 $c_{t-1}$ 被保留或遗忘的比例                       \\
-        $g_t$                 & 候选记忆                  & 由当前输入和上一隐藏状态生成的待写入新信息                              \\
-        $o_t$                 & 输出门                   & 控制当前细胞状态 $c_t$ 输出到隐藏状态 $h_t$ 的比例                   \\
-        $c_t$                 & 当前细胞状态                & 当前时间步更新后的长期记忆                                      \\
-        $h_t$                 & 当前隐藏状态                & 当前时间步的输出特征，也是传递到下一时间步的隐藏状态                         \\
-        $x_t$                 & 当前输入                  & 第 $t$ 个时间步输入到 LSTM 的特征向量                           \\
-        $h_{t-1}$             & 上一隐藏状态                & 上一时间步输出的隐藏状态，用于传递短期历史信息                            \\
-        $c_{t-1}$             & 上一细胞状态                & 上一时间步保留下来的长期记忆                                     \\
-        $W_{i*}$              & 输入侧权重矩阵               & $*$ 可取 $r,z,n$，分别对应重置门、更新门和候选隐藏状态                  \\
-        $W_{h*}$              & 隐藏侧权重矩阵               & $*$ 可取 $r,z,n$，用于将上一隐藏状态 $h_{t-1}$ 映射到相应门控计算项      \\
-        $b_{i*}$              & 输入侧偏置项                & $*$ 可取 $r,z,n$，对应当前输入 $x_t$ 作用于各门控计算项时的可训练偏置       \\
-        $b_{h*}$              & 隐藏侧偏置项                & $*$ 可取 $r,z,n$，对应上一隐藏状态 $h_{t-1}$ 作用于各门控计算项时的可训练偏置 \\
-        $\sigma$              & Sigmoid函数             & 将门控变量压缩到 $0$ 到 $1$ 之间，用于表示信息通过比例                   \\
-        $\tanh$               & 双曲正切函数                & 将候选记忆或细胞状态压缩到 $-1$ 到 $1$ 之间                        \\
-        $\odot$               & Hadamard积             & 表示矩阵或向量的逐元素乘法                                      \\
+        $i_t$                 & 输入门                   & 控制候选记忆 $g_t$ 写入细胞状态 $c_t$ 的比例                        \\
+        $f_t$                 & 遗忘门                   & 控制上一细胞状态 $c_{t-1}$ 被保留或遗忘的比例                         \\
+        $g_t$                 & 候选记忆                  & 由当前输入和上一隐藏状态生成的待写入新信息                                \\
+        $o_t$                 & 输出门                   & 控制当前细胞状态 $c_t$ 输出到隐藏状态 $h_t$ 的比例                     \\
+        $c_t$                 & 当前细胞状态                & 当前时间步更新后的长期记忆                                        \\
+        $h_t$                 & 当前隐藏状态                & 当前时间步的输出特征，也是传递到下一时间步的隐藏状态                           \\
+        $x_t$                 & 当前输入                  & 第 $t$ 个时间步输入到 LSTM 的特征向量                             \\
+        $h_{t-1}$             & 上一隐藏状态                & 上一时间步输出的隐藏状态，用于传递短期历史信息                              \\
+        $c_{t-1}$             & 上一细胞状态                & 上一时间步保留下来的长期记忆                                       \\
+        $W_{i*}$              & 输入侧权重矩阵               & $*$ 可取 $i,f,g,o$，分别对应输入门、遗忘门、候选记忆和输出门                \\
+        $W_{h*}$              & 隐藏侧权重矩阵               & $*$ 可取 $i,f,g,o$，用于将上一隐藏状态 $h_{t-1}$ 映射到相应门控计算项      \\
+        $b_{i*}$              & 输入侧偏置项                & $*$ 可取 $i,f,g,o$，对应当前输入 $x_t$ 作用于各门控计算项时的可训练偏置       \\
+        $b_{h*}$              & 隐藏侧偏置项                & $*$ 可取 $i,f,g,o$，对应上一隐藏状态 $h_{t-1}$ 作用于各门控计算项时的可训练偏置 \\
+        $\sigma$              & Sigmoid函数             & 将门控变量压缩到 $0$ 到 $1$ 之间，用于表示信息通过比例                     \\
+        $\tanh$               & 双曲正切函数                & 将候选记忆或细胞状态压缩到 $-1$ 到 $1$ 之间                          \\
+        $\odot$               & Hadamard积             & 表示矩阵或向量的逐元素乘法                                        \\
         \specialrule{\heavyrulewidth}{0pt}{0pt}
     \end{tabular}
     \vspace{-0.2cm}
@@ -287,7 +287,14 @@ torch官方文档中给出的GRU公式\textsuperscript{\color{red}\cite{ref3}}�
 \par{}
 为了应用算法，本次实验采取每步骤一个脚本，最终再用一个总控脚本统一运行的方式进行各项操作，这样既可以满足点击直接全链条运行的需求，又可以单独执行以调试某些脚本文件。
 \par{}
-\textbf{第1步：数据准备，即数据的清洗与计算。}使用subprocess包调用.m文件进行数据导入与清洗，此处采用Savitzky-Golay平滑与Z-score标准化方法对输入的7组数据进行平滑和归一化处理，并且只使用Z-score标准化方法对输出的4组数据进行归一化处理，这里不对输出数据进行平滑的原因是其为模型学习与预测的真实标签，要贴合实际；而输入则是由于需要适度平滑以减少噪声干扰，防止噪声迷惑模型。同时由于后续还要做对比实验，还加了对输入的数据只进行归一化处理的版本；这两个版本均输出一个只包含输入输出的11列.csv文件；最后再选择几个数据进行对比绘图。
+\textbf{第1步：数据准备，即数据的清洗与计算。}使用subprocess包调用.m文件进行数据导入与清洗，此处采用Savitzky-Golay平滑与Z-score标准化方法对输入的7组数据进行平滑和归一化处理，并且只使用Z-score标准化方法对输出的4组数据进行归一化处理，这里不对输出数据进行平滑的原因是其为模型学习与预测的真实标签，要贴合实际；而输入则是由于需要适度平滑以减少噪声干扰，防止噪声迷惑模型。同时由于后续还要做对比实验，还加了对输入的数据只进行归一化处理的版本；这两个版本均输出一个只包含输入输出的11列.csv文件；最后再选择几个数据进行对比绘图，如图1。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\linewidth]{pics/zc_and_F1_comparison.png}
+    \includegraphics[width=0.65\linewidth]{pics/zc_and_F1_no_smoothing_comparison.png}
+    \caption{数据处理前后对比图}
+    \vspace{-0.3cm}
+\end{figure}
 \par{}
 \textbf{第2步：选择模型并设计模型结构。}首先按.csv中的分配，定义输入特征与输出标签；接着设置模型参数如下表：
 \begin{table}[H]
@@ -340,32 +347,122 @@ torch官方文档中给出的GRU公式\textsuperscript{\color{red}\cite{ref3}}�
 \par{}
 其中按时间序列的先后顺序将原数据集划分成训练集、验证集与测试集，其中前两者在训练时生效，测试集只在最终预测时生效，进行独立测试集评估，以对模型进行简单的泛化性能测试，但严格意义上不算迁移学习；同时对于两种前处理结果的两种模型均展开训练，以便后续对比；再保存模型权重到.pt文件，保存训练损失等过程信息到.csv文件。
 \par{}
-\textbf{第4步：模型评估。}加载训练好的LSTM与GRU最优权重并在测试集上预测，计算MSE、RMSE、MAE等，保存在.csv中并对训练与测试过程中的关键指标进行可视化处理。
+\textbf{第4步：迁移学习。}加载平滑+归一化数据上训练得到的LSTM与GRU权重，并将其作为预训练权重迁移到仅归一化数据上继续训练，从而观察模型在不同数据分布之间迁移后的性能变化。
 \par{}
-\textbf{当然还有一个总控脚本，}该脚本按顺序运行第1至4步，报错则停止运行。
+\textbf{第5步：模型评估。}加载普通训练模型与迁移学习模型的最优权重并在测试集上预测，计算MSE、RMSE、MAE等，保存在.csv中并对训练与测试过程中的关键指标进行可视化处理。
+\par{}
+\textbf{当然还有一个总控脚本，}该脚本按顺序运行第1至5步，报错则停止运行；同时如果检测到存在已完成的步骤，会直接跳过该步骤，直接执行后续步骤。
 \par{}
 \quad{}
 \par{}
 \section{实验结果与分析}
-
+\subsection{数据预处理方法对比}
+\par{}
+本次实验进行了两套预处理：输入特征Savitzky-Golay平滑+Z-score标准化，输出标签仅Z-score标准化；输入特征与输出标签仅Z-score标准化。
+\par{}
+如图2，这是两种模型在两套预处理方法下得出的的预测结果波形图片段，每种情况选了4个片段进行展示，可目测得出在同一模型结果图像的部分尖峰附近，同时对输入进行平滑与归一化处理所得预测图线与实际图线的吻合程度不如只进行归一化处理所得。虽然这不足以量化说明其具体差异，但已经能推测大致结果。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.48\linewidth]{pics/prediction_comparison_GRU.png}
+    \includegraphics[width=0.48\linewidth]{pics/prediction_comparison_GRU_no_smoothing.png}
+    \includegraphics[width=0.48\linewidth]{pics/prediction_comparison_LSTM.png}
+    \includegraphics[width=0.48\linewidth]{pics/prediction_comparison_LSTM_no_smoothing.png}
+    \caption{测试结果示意图}
+    \vspace{-0.5cm}
+\end{figure}
+\par{}
+如图3，这是训练的损失曲线，可得同一模型下仍然是后一种处理方式的训练损失更低，同时训练轮次也更多，意味着此时模型的训练优化性能较好，至于会不会造成过拟合等不利影响，则应当观察图4。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{pics/loss_curve.png}
+    \includegraphics[width=0.8\linewidth]{pics/loss_curve_no_smoothing.png}
+    \caption{损失曲线对比}
+    \vspace{-0.5cm}
+\end{figure}
+\par{}
+图4为两种处理方法的总体指标对比，可见MSE、RMSE与MAE这几个关键指标都是仅归一化处理时更低。由公式
+\begin{align*}
+    \mathrm{MSE}  & =\frac{1}{n}\sum_{i=1}^{n}(y_i-\hat{y}_i)^2        \\
+    \mathrm{RMSE} & =\sqrt{\frac{1}{n}\sum_{i=1}^{n}(y_i-\hat{y}_i)^2} \\
+    \mathrm{MAE}  & =\frac{1}{n}\sum_{i=1}^{n}|y_i-\hat{y}_i|
+\end{align*}
+可得，只需要关注RMSE与MAE即可，RMSE指均方根误差、MAE指平均绝对误差，前者对预测误差的某些较大值更加敏感，主要反映误差的离散程度；后者对异常大误差的敏感性较低，主要反映平均误差。因此，仅归一化的处理方法下的结果从误差的均值与离散度上都更优前一种；这也说明后一种处理方法带来的训练轮次增加并不会造成过拟合现象，反而会让测试集表现效果更好。
+\par{}
+这也说明当前算例中Savitzky-Golay平滑虽然能降低输入噪声，但也可能削弱了车辆振动信号中的局部峰值和快速变化信息；而这些快速变化可能对车轮垂向力预测有用。因此针对该数据集，保留原始输入动态细节比额外平滑更有利。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.98\linewidth]{pics/preprocessing_metrics_comparison.png}
+    \caption{两种处理方法各项总体指标对比}
+    \vspace{-0.5cm}
+\end{figure}
+\vspace{0.25cm}
+\subsection{网络/模型对比}
+\par{}
+由超参数表得，两种模型的网络结构基本一致，区别主要还是在前文中所说的门控结构；从第二步输出的可训练参数数量得，GRU的参数少于LSTM，更为轻量化，也符合前面对门控结构复杂度的分析。
+\par{}
+如图3，从训练损失曲线看，同一预处理方案下的GRU损失曲线基本低于LSTM，因此对于该数据集，训练时GRU的优化性能更好；但GRU的训练轮次比LSTM略多，是因为早停参数设置使得LSTM较早进入验证损失停滞，而GRU在较长时间内仍能继续改善验证损失；从下文分析的测试指标看，GRU的额外训练轮次并未造成明显过拟合，反而对应更好的预测性能。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.98\linewidth]{pics/metrics_comparison.png}
+    \includegraphics[width=0.98\linewidth]{pics/metrics_comparison_no_smoothing.png}
+    \caption{两种模型各项指标对比}
+    \vspace{-0.5cm}
+\end{figure}
+\par{}
+如图5，从测试集指标来看，GRU在同种预处理方案下绝大多数指标都优于LSTM，尤其是同时进行了平滑+归一化的数据上，两者RMSE与MAE相差更明显，说明在经平滑后的输入信号中，GRU 的门控结构已经足够提取主要时序特征，而且参数量更少，训练更稳定；而在仅归一化的结果上，GRU的RMSE与MAE仍然略小于LSTM，说明二者在整体误差水平上接近，但 GRU 的平均绝对误差略小，预测偏差更稳定一些。
+\par{}
+该结果的原因可能是GRU参数更少，在当前数据规模和窗口长度下更容易训练稳定，也不容易出现过拟合；而LSTM表达能力更强，但也更依赖充足数据和合适的调参。因此，本算例中的相同模型参数设置下，GRU以更简单的门控结构获得了更好的综合预测效果，可作为更优基准模型。
+\vspace{0.25cm}
+\subsection{迁移学习效果}
+\par{}
+在迁移学习实验中，LSTM和GRU均加载在平滑+归一化处理后的数据上训练得到的预训练权重，并在“仅归一化”数据上进行再训练，即迁移学习。如图6，训练过程方面，GRU在第43轮停止训练，明显早于LSTM的第88轮，表明GRU的收敛速度更快；但其最佳验证损失和测试误差均高于LSTM。因此，在本实验的迁移学习设置下，GRU 具有训练效率优势，而LSTM具有更好的最终预测精度。
+\begin{figure}[H]
+    \centering
+    \vspace{-0.2cm}
+    \includegraphics[width=0.8\linewidth]{pics/loss_curve_transfer.png}
+    \caption{迁移学习损失曲线对比}
+    \vspace{-0.5cm}
+\end{figure}
+\par{}
+测试结果表明，LSTM的Overall MSE、RMSE和MAE均低于GRU；同时，LSTM在四个输出目标上的误差也均小于GRU，说明其迁移后的整体预测精度更高，如图7。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.98\linewidth]{pics/transfer_learning_metrics_comparison.png}
+    \vspace{-0.5cm}
+\end{figure}
+\newpage{}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.98\linewidth]{pics/metrics_comparison_transfer.png}
+    \caption{两种模型迁移学习效果对比}
+    \vspace{-0.5cm}
+\end{figure}
+\par{}
+而对比迁移学习和直接训练所得结果，如图8，对于LSTM，迁移学习后的三个误差指标均低于仅归一化数据上的直接训练结果，说明其在源域中学习到的时序特征对目标域具有一定迁移价值。对于 GRU，迁移学习后的三项误差指标均略高于直接训练结果，表明源域权重并未提升目标域预测性能。这可能是由于 GRU 结构较简洁，直接在目标域数据上训练已经能够较快适应数据分布，而源域权重反而限制了其进一步优化。因此，本实验中迁移学习对LSTM更有效，而对GRU的提升并不明显；迁移学习并不必然提升性能，它是否有效取决于源域和目标域的数据分布差异，以及模型结构对已有权重的利用能力。
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.98\linewidth]{pics/preprocessing_metrics_comparison_with_transfer.png}
+    \caption{迁移训练与直接训练总体指标对比}
+    \vspace{-0.5cm}
+\end{figure}
 \par{}
 \quad{}
 \par{}
 \section{附录：源代码（带注释）}
-本项目仓库见\href{https://github.com/MengJeff/RFDD}{\color{blue} https://github.com/MengJeff/RFDD}或附属压缩包文件夹；实验报告的\LaTeX{}源代码见\href{https://github.com/XiaoZhefu/RFDD-LaTeX-Report}{\color{blue} https://github.com/XiaoZhefu/RFDD-LaTeX-Report}。
+本项目仓库见\href{https://github.com/XiaoZhefu/RNN-Homework}{\color{blue} https://github.com/XiaoZhefu/RNN-Homework}或附属压缩包文件夹，包含脚本与报告源代码。
 \par{}
 \quad{}
 \par{}
 \begin{flushleft}
     \begin{small}
         \begin{thebibliography}{99}
-            \bibitem{ref1} PyTorch Contributors. torch.nn.RNN [EB/OL]. PyTorch 2.12 Documentation, 2026[2026-06-05]. \\
+            \bibitem{ref1} PyTorch Contributors. torch.nn.RNN [EB/OL]. PyTorch 2.12 Documentation, 2026[2026-06-05].
             \href{https://docs.pytorch.org/docs/2.12/generated/torch.nn.RNN.html}{\color{blue} https://docs.pytorch.org/docs/2.12/generated/torch.nn.RNN.html}.
             \vspace{-3mm}
-            \bibitem{ref2} PyTorch Contributors. torch.nn.LSTM [EB/OL]. PyTorch 2.12 Documentation, 2026[2026-06-05]. \\
+            \bibitem{ref2} PyTorch Contributors. torch.nn.LSTM [EB/OL]. PyTorch 2.12 Documentation, 2026[2026-06-05].
             \href{https://docs.pytorch.org/docs/2.12/generated/torch.nn.LSTM.html}{\color{blue} https://docs.pytorch.org/docs/2.12/generated/torch.nn.LSTM.html}.
             \vspace{-3mm}
-            \bibitem{ref3} PyTorch Contributors. torch.nn.GRU [EB/OL]. PyTorch 2.12 Documentation, 2026[2026-06-05]. \\
+            \bibitem{ref3} PyTorch Contributors. torch.nn.GRU [EB/OL]. PyTorch 2.12 Documentation, 2026[2026-06-05].
             \href{https://docs.pytorch.org/docs/2.12/generated/torch.nn.GRU.html}{\color{blue} https://docs.pytorch.org/docs/2.12/generated/torch.nn.GRU.html}.
             \vspace{-3mm}
         \end{thebibliography}
