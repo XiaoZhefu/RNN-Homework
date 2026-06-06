@@ -142,7 +142,7 @@ for config_idx = 1:numel(preprocess_configs)
             pred_col = char(model_name + "_" + target + "_pred");
             plot(x, pred_data.(true_col)(1:plot_count), '-', 'Color', [0.0000 0.4470 0.7410], 'LineWidth', 1.1);
             plot(x, pred_data.(pred_col)(1:plot_count), '-', 'Color', [0.8500 0.3250 0.0980], 'LineWidth', 0.85);
-            title([target, ' Prediction (', char(model_name), ')'], 'FontSize', 13, 'FontWeight', 'bold');
+            title([target, ' Prediction (', char(model_name), ', ', config.name, ')'], 'FontSize', 13, 'FontWeight', 'bold');
             xlabel('Test Sample Index', 'FontSize', 10);
             ylabel('Normalized Force', 'FontSize', 10);
             legend({'True', 'Predicted'}, 'Location', 'northwest', 'FontSize', 9);
