@@ -8,13 +8,13 @@ pic_dir = fullfile(script_dir, 'outputpics');
 if ~exist(pic_dir, 'dir')
     mkdir(pic_dir);
 end
-% 两套预处理方案：原有方案保持原文件名，对比方案使用 no_smoothing 后缀
+% 三套方案：两套普通训练方案，以及从平滑+归一化迁移到仅归一化的迁移学习方案
 preprocess_configs = struct( ...
-    'name', {'Smoothed + Normalized', 'Normalized Only'}, ...
-    'suffix', {'', '_no_smoothing'}, ...
-    'loss_file', {'loss_history.csv', 'loss_history_no_smoothing.csv'}, ...
-    'metrics_file', {'evaluation_metrics.csv', 'evaluation_metrics_no_smoothing.csv'}, ...
-    'prediction_file', {'prediction_results.csv', 'prediction_results_no_smoothing.csv'} ...
+    'name', {'Smoothed + Normalized', 'Normalized Only', 'Transfer Learning'}, ...
+    'suffix', {'', '_no_smoothing', '_transfer'}, ...
+    'loss_file', {'loss_history.csv', 'loss_history_no_smoothing.csv', 'loss_history_transfer.csv'}, ...
+    'metrics_file', {'evaluation_metrics.csv', 'evaluation_metrics_no_smoothing.csv', 'evaluation_metrics_transfer.csv'}, ...
+    'prediction_file', {'prediction_results.csv', 'prediction_results_no_smoothing.csv', 'prediction_results_transfer.csv'} ...
     );
 default_colors = colororder;
 metric_names = {'mse', 'rmse', 'mae'};
@@ -164,9 +164,10 @@ for config_idx = 1:numel(preprocess_configs)
 end
 
 %% 绘制不同预处理方法对整体指标的影响
-% 使用 Overall 指标比较平滑+归一化与仅归一化两种预处理方案
+% 使用 Overall 指标比较平滑归一化与仅归一化两种预处理方法
 models_for_preprocess = string(unique(all_overall_metrics.model, 'stable'));
-preprocess_names = string(unique(all_overall_metrics.preprocessing, 'stable'));
+preprocess_names_all = string(unique(all_overall_metrics.preprocessing, 'stable'));
+preprocess_names = preprocess_names_all(preprocess_names_all ~= "Transfer Learning");
 preprocess_metric_values = zeros(numel(models_for_preprocess), numel(preprocess_names), numel(metric_names));
 for metric_idx = 1:numel(metric_names)
     metric_name = metric_names{metric_idx};
@@ -209,3 +210,94 @@ end
 preprocess_pic = fullfile(pic_dir, 'preprocessing_metrics_comparison.png');
 exportgraphics(f04, preprocess_pic, 'Resolution', 600);
 disp(['    预处理方法对比图已保存至: ', preprocess_pic]);
+
+%% 绘制不同预处理和迁移学习方案对整体指标的影响
+% 使用 Overall 指标比较两种预处理方法与迁移学习方案
+preprocess_metric_values_all = zeros(numel(models_for_preprocess), numel(preprocess_names_all), numel(metric_names));
+for metric_idx = 1:numel(metric_names)
+    metric_name = metric_names{metric_idx};
+    for model_idx = 1:numel(models_for_preprocess)
+        model_name = models_for_preprocess(model_idx);
+        for prep_idx = 1:numel(preprocess_names_all)
+            prep_name = preprocess_names_all(prep_idx);
+            row_idx = strcmp(string(all_overall_metrics.model), model_name) & strcmp(string(all_overall_metrics.preprocessing), prep_name);
+            preprocess_metric_values_all(model_idx, prep_idx, metric_idx) = all_overall_metrics.(metric_name)(row_idx);
+        end
+    end
+end
+f06 = figure(102);
+f06.Position = [0, 0, 1500, 430];
+for metric_idx = 1:numel(metric_names)
+    axes('Position', metric_subplot_positions(metric_idx, :));
+    b = bar(preprocess_metric_values_all(:, :, metric_idx), 'BarWidth', 0.80);
+    for bar_idx = 1:numel(b)
+        b(bar_idx).EdgeColor = 'none';
+        x_text = b(bar_idx).XEndPoints;
+        y_text = b(bar_idx).YEndPoints;
+        labels = compose('%.4f', y_text);
+        text(x_text, y_text, labels, ...
+            'HorizontalAlignment', 'center', ...
+            'VerticalAlignment', 'bottom', ...
+            'FontName', 'Times New Roman', ...
+            'FontSize', 8);
+    end
+    grid on;
+    title(['Overall ', metric_titles{metric_idx}], 'FontSize', 14, 'FontWeight', 'bold');
+    xlabel('Model', 'FontSize', 11);
+    ylabel(metric_titles{metric_idx}, 'FontSize', 11);
+    xticks(1:numel(models_for_preprocess));
+    xticklabels(cellstr(models_for_preprocess));
+    legend(cellstr(preprocess_names_all), 'Location', 'northwest', 'FontSize', 9);
+    ylim([0, max(preprocess_metric_values_all(:, :, metric_idx), [], 'all') * 1.28]);
+    box off;
+    set(gca, 'FontName', 'Times New Roman', 'FontSize', 10);
+end
+preprocess_transfer_pic = fullfile(pic_dir, 'preprocessing_metrics_comparison_with_transfer.png');
+exportgraphics(f06, preprocess_transfer_pic, 'Resolution', 600);
+disp(['    预处理与迁移学习方案对比图已保存至: ', preprocess_transfer_pic]);
+
+%% 绘制迁移学习与目标域直接训练的整体指标对比
+% 目标域直接训练指 Normalized Only，迁移学习指 Transfer Learning
+transfer_compare_names = {'Normalized Only', 'Transfer Learning'};
+transfer_compare_values = zeros(numel(models_for_preprocess), numel(transfer_compare_names), numel(metric_names));
+for metric_idx = 1:numel(metric_names)
+    metric_name = metric_names{metric_idx};
+    for model_idx = 1:numel(models_for_preprocess)
+        model_name = models_for_preprocess(model_idx);
+        for prep_idx = 1:numel(transfer_compare_names)
+            prep_name = transfer_compare_names{prep_idx};
+            row_idx = strcmp(string(all_overall_metrics.model), model_name) & strcmp(string(all_overall_metrics.preprocessing), prep_name);
+            transfer_compare_values(model_idx, prep_idx, metric_idx) = all_overall_metrics.(metric_name)(row_idx);
+        end
+    end
+end
+f05 = figure(101);
+f05.Position = [0, 0, 1500, 430];
+for metric_idx = 1:numel(metric_names)
+    axes('Position', metric_subplot_positions(metric_idx, :));
+    b = bar(transfer_compare_values(:, :, metric_idx), 'BarWidth', 0.80);
+    for bar_idx = 1:numel(b)
+        b(bar_idx).EdgeColor = 'none';
+        x_text = b(bar_idx).XEndPoints;
+        y_text = b(bar_idx).YEndPoints;
+        labels = compose('%.4f', y_text);
+        text(x_text, y_text, labels, ...
+            'HorizontalAlignment', 'center', ...
+            'VerticalAlignment', 'bottom', ...
+            'FontName', 'Times New Roman', ...
+            'FontSize', 8);
+    end
+    grid on;
+    title(['Transfer ', metric_titles{metric_idx}], 'FontSize', 14, 'FontWeight', 'bold');
+    xlabel('Model', 'FontSize', 11);
+    ylabel(metric_titles{metric_idx}, 'FontSize', 11);
+    xticks(1:numel(models_for_preprocess));
+    xticklabels(cellstr(models_for_preprocess));
+    legend(transfer_compare_names, 'Location', 'northwest', 'FontSize', 9);
+    ylim([0, max(transfer_compare_values(:, :, metric_idx), [], 'all') * 1.28]);
+    box off;
+    set(gca, 'FontName', 'Times New Roman', 'FontSize', 10);
+end
+transfer_pic = fullfile(pic_dir, 'transfer_learning_metrics_comparison.png');
+exportgraphics(f05, transfer_pic, 'Resolution', 600);
+disp(['    迁移学习对比图已保存至: ', transfer_pic]);

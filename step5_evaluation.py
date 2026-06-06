@@ -21,13 +21,14 @@ from step3_training import (
     load_sequence_data,
     split_train_val_test,
 )
+from step4_transfer_learning import TRANSFER_MODEL_PREFIX
 
 
 # 评估结果、预测结果和 MATLAB 可视化脚本路径
 SCRIPT_DIR = Path(__file__).resolve().parent
 OUTPUT_PIC_DIR = SCRIPT_DIR / "outputpics"
 MATLAB_SCRIPT = SCRIPT_DIR / "matlab_visualization_evaluation.m"
-# 两套预处理方案的评估输出；原有方案保持原文件名，新增方案使用后缀
+# 三套评估：两个普通训练方案 + 一个迁移学习方案
 EVALUATION_CONFIGS = [
     {
         "name": "平滑+归一化",
@@ -42,6 +43,13 @@ EVALUATION_CONFIGS = [
         "model_prefix": DATASET_CONFIGS[1]["model_prefix"],
         "metrics_path": OUTPUT_DIR / "evaluation_metrics_no_smoothing.csv",
         "prediction_path": OUTPUT_DIR / "prediction_results_no_smoothing.csv",
+    },
+    {
+        "name": "迁移学习",
+        "data_path": DATASET_CONFIGS[1]["data_path"],
+        "model_prefix": TRANSFER_MODEL_PREFIX,
+        "metrics_path": OUTPUT_DIR / "evaluation_metrics_transfer.csv",
+        "prediction_path": OUTPUT_DIR / "prediction_results_transfer.csv",
     },
 ]
 
@@ -113,9 +121,9 @@ def save_prediction_results(prediction_path, sample_index, y_true, model_predict
 
 
 def evaluate_dataset(config, device):
-    """评估某一种预处理数据下的 LSTM 和 GRU 模型。"""
+    """评估某一种数据或迁移方案下的 LSTM 和 GRU 模型。"""
     print("-" * 60)
-    print_tag("Data", f"当前预处理方案: {config['name']}")
+    print_tag("Data", f"当前评估方案: {config['name']}")
     print_tag("File", f"测试数据: {config['data_path'].name}")
 
     x_seq, y_seq = load_sequence_data(config["data_path"])
@@ -161,7 +169,7 @@ def run_matlab_visualization():
 
 def main():
     print("=" * 60)
-    print("  4. 模型评估")
+    print("  5. 模型评估")
     print("=" * 60)
     print("  [Step] 在测试集上计算 MSE、RMSE、MAE")
     print("  [File] 模型权重 : models/")
