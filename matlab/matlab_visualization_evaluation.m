@@ -3,10 +3,15 @@ clc; clear; close all;
 %% 加载评估结果数据
 % 设置脚本路径、输出数据目录和图片保存目录
 script_dir = fileparts(mfilename('fullpath'));
-output_dir = fullfile(script_dir, 'outputdata');
-pic_dir = fullfile(script_dir, 'outputpics');
+project_dir = fileparts(script_dir);
+output_dir = fullfile(project_dir, 'outputs', 'data');
+pic_dir = fullfile(project_dir, 'outputs', 'pics');
+report_pic_dir = fullfile(project_dir, 'report', 'pics');
 if ~exist(pic_dir, 'dir')
     mkdir(pic_dir);
+end
+if ~exist(report_pic_dir, 'dir')
+    mkdir(report_pic_dir);
 end
 % 三套方案：两套普通训练方案，以及从平滑+归一化迁移到仅归一化的迁移学习方案
 preprocess_configs = struct( ...
@@ -77,6 +82,7 @@ for config_idx = 1:numel(preprocess_configs)
     % 保存损失曲线
     loss_pic = fullfile(pic_dir, ['loss_curve', config.suffix, '.png']);
     exportgraphics(f01, loss_pic, 'Resolution', 600);
+    copyfile(loss_pic, fullfile(report_pic_dir, ['loss_curve', config.suffix, '.png']));
 
     %% 绘制评价指标对比图
     % 将 MSE、RMSE、MAE 以分组柱状图形式展示，便于比较不同模型性能
@@ -123,6 +129,7 @@ for config_idx = 1:numel(preprocess_configs)
     % 保存评价指标对比图
     metrics_pic = fullfile(pic_dir, ['metrics_comparison', config.suffix, '.png']);
     exportgraphics(f02, metrics_pic, 'Resolution', 600);
+    copyfile(metrics_pic, fullfile(report_pic_dir, ['metrics_comparison', config.suffix, '.png']));
 
     %% 绘制预测值与真实值对比图
     % 仅展示测试集前 1000 个样本，避免曲线过密
@@ -152,6 +159,7 @@ for config_idx = 1:numel(preprocess_configs)
         % 保存当前模型的预测对比图
         prediction_file = fullfile(pic_dir, ['prediction_comparison_', char(model_name), config.suffix, '.png']);
         exportgraphics(f03, prediction_file, 'Resolution', 600);
+        copyfile(prediction_file, fullfile(report_pic_dir, ['prediction_comparison_', char(model_name), config.suffix, '.png']));
         disp(['    预测对比图已保存至: ', prediction_file]);
     end
     % 汇总 Overall 指标，用于比较不同预处理方法的影响
@@ -209,6 +217,7 @@ for metric_idx = 1:numel(metric_names)
 end
 preprocess_pic = fullfile(pic_dir, 'preprocessing_metrics_comparison.png');
 exportgraphics(f04, preprocess_pic, 'Resolution', 600);
+copyfile(preprocess_pic, fullfile(report_pic_dir, 'preprocessing_metrics_comparison.png'));
 disp(['    预处理方法对比图已保存至: ', preprocess_pic]);
 
 %% 绘制不同预处理和迁移学习方案对整体指标的影响
@@ -254,6 +263,7 @@ for metric_idx = 1:numel(metric_names)
 end
 preprocess_transfer_pic = fullfile(pic_dir, 'preprocessing_metrics_comparison_with_transfer.png');
 exportgraphics(f06, preprocess_transfer_pic, 'Resolution', 600);
+copyfile(preprocess_transfer_pic, fullfile(report_pic_dir, 'preprocessing_metrics_comparison_with_transfer.png'));
 disp(['    预处理与迁移学习方案对比图已保存至: ', preprocess_transfer_pic]);
 
 %% 绘制迁移学习与目标域直接训练的整体指标对比
@@ -300,4 +310,5 @@ for metric_idx = 1:numel(metric_names)
 end
 transfer_pic = fullfile(pic_dir, 'transfer_learning_metrics_comparison.png');
 exportgraphics(f05, transfer_pic, 'Resolution', 600);
+copyfile(transfer_pic, fullfile(report_pic_dir, 'transfer_learning_metrics_comparison.png'));
 disp(['    迁移学习对比图已保存至: ', transfer_pic]);

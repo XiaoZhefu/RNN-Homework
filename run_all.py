@@ -3,9 +3,10 @@ import subprocess
 import sys
 
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-MODEL_DIR = SCRIPT_DIR / "models"
-
+PROJECT_DIR = Path(__file__).resolve().parent
+SCRIPT_DIR = PROJECT_DIR / "scripts"
+MODEL_DIR = PROJECT_DIR / "models"
+PROCESSED_DATA_DIR = PROJECT_DIR / "data" / "processed"
 STEPS = [
     ("1. 数据准备", "step1_preparing.py"),
     ("2. 模型选择与结构设计", "step2_model_design.py"),
@@ -13,22 +14,19 @@ STEPS = [
     ("4. 迁移学习", "step4_transfer_learning.py"),
     ("5. 模型评估", "step5_evaluation.py"),
 ]
-
 STEP3_WEIGHTS = [
     MODEL_DIR / "lstm_best.pt",
     MODEL_DIR / "gru_best.pt",
     MODEL_DIR / "no_smoothing_lstm_best.pt",
     MODEL_DIR / "no_smoothing_gru_best.pt",
 ]
-
 TRANSFER_WEIGHTS = [
     MODEL_DIR / "transfer_lstm_best.pt",
     MODEL_DIR / "transfer_gru_best.pt",
 ]
-
 STEP1_OUTPUT_FILES = [
-    SCRIPT_DIR / "cleaned_dataset.csv",
-    SCRIPT_DIR / "cleaned_dataset_no_smoothing.csv",
+    PROCESSED_DATA_DIR / "cleaned_dataset.csv",
+    PROCESSED_DATA_DIR / "cleaned_dataset_no_smoothing.csv",
 ]
 
 
@@ -65,7 +63,7 @@ def main():
     for title, script_name in select_steps():
         print("-" * 60)
         print(f"  [Step] {title}")
-        print(f"  [File] {script_name}")
+        print(f"  [File] scripts/{script_name}")
         print("-" * 60)
 
         result = subprocess.run([sys.executable, "-B", script_name], cwd=SCRIPT_DIR)

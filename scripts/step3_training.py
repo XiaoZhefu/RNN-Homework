@@ -21,9 +21,10 @@ from step2_model_design import (
 
 # 输出目录：模型权重与训练损失会分别保存到这里
 SCRIPT_DIR = Path(__file__).resolve().parent
-MODEL_DIR = SCRIPT_DIR / "models"
-OUTPUT_DIR = SCRIPT_DIR / "outputdata"
-NO_SMOOTHING_DATA_PATH = SCRIPT_DIR / "cleaned_dataset_no_smoothing.csv"
+PROJECT_DIR = SCRIPT_DIR.parent
+MODEL_DIR = PROJECT_DIR / "models"
+OUTPUT_DIR = PROJECT_DIR / "outputs" / "data"
+NO_SMOOTHING_DATA_PATH = PROJECT_DIR / "data" / "processed" / "cleaned_dataset_no_smoothing.csv"
 # 训练超参数
 TRAIN_RATIO = 0.70
 VAL_RATIO = 0.15
@@ -228,8 +229,8 @@ def main():
     print("  3. 模型训练")
     print("=" * 60)
     print("  [Step] 按时间顺序划分训练集、验证集与测试集")
-    print("  [File] 清洗数据 : cleaned_dataset.csv")
-    print("  [File] 对比数据 : cleaned_dataset_no_smoothing.csv")
+    print("  [File] 清洗数据 : data/processed/cleaned_dataset.csv")
+    print("  [File] 对比数据 : data/processed/cleaned_dataset_no_smoothing.csv")
     print("-" * 60)
 
     MODEL_DIR.mkdir(exist_ok=True)

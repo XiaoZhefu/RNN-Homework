@@ -7,8 +7,10 @@ import torch.nn as nn
 
 # 基础路径与数据文件
 SCRIPT_DIR = Path(__file__).resolve().parent
-DATA_PATH = SCRIPT_DIR / "cleaned_dataset.csv"
-NO_SMOOTHING_DATA_PATH = SCRIPT_DIR / "cleaned_dataset_no_smoothing.csv"
+PROJECT_DIR = SCRIPT_DIR.parent
+PROCESSED_DATA_DIR = PROJECT_DIR / "data" / "processed"
+DATA_PATH = PROCESSED_DATA_DIR / "cleaned_dataset.csv"
+NO_SMOOTHING_DATA_PATH = PROCESSED_DATA_DIR / "cleaned_dataset_no_smoothing.csv"
 # 时间序列样本与模型超参数
 SEQ_LEN = 50
 BATCH_SIZE = 32
@@ -143,7 +145,7 @@ def main():
     print("  2. 模型选择与结构设计")
     print("=" * 60)
     print("  [Step] 读取清洗后数据并构造时间序列样本")
-    print("  [File] 清洗数据 : cleaned_dataset.csv")
+    print("  [File] 清洗数据 : data/processed/cleaned_dataset.csv")
     print("-" * 60)
 
     # 读取清洗后的 7 个输入特征和 4 个输出标签

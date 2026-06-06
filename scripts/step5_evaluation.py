@@ -26,8 +26,9 @@ from step4_transfer_learning import TRANSFER_MODEL_PREFIX
 
 # 评估结果、预测结果和 MATLAB 可视化脚本路径
 SCRIPT_DIR = Path(__file__).resolve().parent
-OUTPUT_PIC_DIR = SCRIPT_DIR / "outputpics"
-MATLAB_SCRIPT = SCRIPT_DIR / "matlab_visualization_evaluation.m"
+PROJECT_DIR = SCRIPT_DIR.parent
+OUTPUT_PIC_DIR = PROJECT_DIR / "outputs" / "pics"
+MATLAB_SCRIPT = PROJECT_DIR / "matlab" / "matlab_visualization_evaluation.m"
 # 三套评估：两个普通训练方案 + 一个迁移学习方案
 EVALUATION_CONFIGS = [
     {
@@ -124,7 +125,7 @@ def evaluate_dataset(config, device):
     """评估某一种数据或迁移方案下的 LSTM 和 GRU 模型。"""
     print("-" * 60)
     print_tag("Data", f"当前评估方案: {config['name']}")
-    print_tag("File", f"测试数据: {config['data_path'].name}")
+    print_tag("File", f"测试数据: {config['data_path'].relative_to(PROJECT_DIR)}")
 
     x_seq, y_seq = load_sequence_data(config["data_path"])
     _, _, _, _, x_test, y_test = split_train_val_test(x_seq, y_seq, TRAIN_RATIO, VAL_RATIO)
@@ -164,7 +165,7 @@ def run_matlab_visualization():
     if matlab_exe is None:
         print_tag("Skip", "未找到 MATLAB，跳过可视化绘图")
         return
-    subprocess.run([matlab_exe, "-batch", f"run('{MATLAB_SCRIPT.as_posix()}')"], cwd=SCRIPT_DIR, check=True)
+    subprocess.run([matlab_exe, "-batch", f"run('{MATLAB_SCRIPT.as_posix()}')"], cwd=PROJECT_DIR, check=True)
 
 
 def main():
@@ -184,7 +185,7 @@ def main():
 
     print("-" * 60)
     print("  [Step] 调用 MATLAB 绘制损失曲线、指标图与预测对比图")
-    print("  [File] MATLAB脚本 : matlab_visualization_evaluation.m")
+    print("  [File] MATLAB脚本 : matlab/matlab_visualization_evaluation.m")
     run_matlab_visualization()
     print("-" * 60)
     print("  [Done] 模型评估完成")

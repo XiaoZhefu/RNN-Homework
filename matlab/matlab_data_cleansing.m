@@ -3,7 +3,21 @@
 %% 加载数据
 % 加载 CSV 数据
 script_dir = fileparts(mfilename('fullpath'));
-data = readtable(fullfile(script_dir, 'Dateset_For_homework.csv'), 'VariableNamingRule', 'preserve');
+project_dir = fileparts(script_dir);
+raw_data_dir = fullfile(project_dir, 'data', 'raw');
+processed_data_dir = fullfile(project_dir, 'data', 'processed');
+output_dir = fullfile(project_dir, 'outputs', 'pics');
+report_pic_dir = fullfile(project_dir, 'report', 'pics');
+if ~exist(processed_data_dir, 'dir')
+    mkdir(processed_data_dir);
+end
+if ~exist(output_dir, 'dir')
+    mkdir(output_dir);
+end
+if ~exist(report_pic_dir, 'dir')
+    mkdir(report_pic_dir);
+end
+data = readtable(fullfile(raw_data_dir, 'Dateset_For_homework.csv'), 'VariableNamingRule', 'preserve');
 varName = data.Properties.VariableNames;
 varNameFeature = varName(1:7);    % 前 7 列为输入特征
 varNameTarget = varName(8:11);    % 第 8-11 列为四个车轮垂向力标签
@@ -66,7 +80,7 @@ cleanedData{:, 8}  = table2array(F1);
 cleanedData{:, 9}  = table2array(F2);
 cleanedData{:, 10} = table2array(F3);
 cleanedData{:, 11} = table2array(F4);
-cleaned_data_path = fullfile(script_dir, 'cleaned_dataset.csv');
+cleaned_data_path = fullfile(processed_data_dir, 'cleaned_dataset.csv');
 writetable(cleanedData, cleaned_data_path);
 disp(['    清洗后数据已保存至: ', cleaned_data_path]);
 % 对比方案：不平滑，仅归一化
@@ -82,7 +96,7 @@ cleanedDataNoSmoothing{:, 8}  = table2array(F1);
 cleanedDataNoSmoothing{:, 9}  = table2array(F2);
 cleanedDataNoSmoothing{:, 10} = table2array(F3);
 cleanedDataNoSmoothing{:, 11} = table2array(F4);
-cleaned_data_no_smoothing_path = fullfile(script_dir, 'cleaned_dataset_no_smoothing.csv');
+cleaned_data_no_smoothing_path = fullfile(processed_data_dir, 'cleaned_dataset_no_smoothing.csv');
 writetable(cleanedDataNoSmoothing, cleaned_data_no_smoothing_path);
 disp(['    对比方案清洗数据已保存至: ', cleaned_data_no_smoothing_path]);
 
@@ -121,12 +135,10 @@ legend([h3, h4], {'Raw', 'Normalized'}, 'Location', 'southeast', 'FontSize', 10)
 set(gca, 'FontName', 'Times New Roman', 'FontSize', 12);
 xlim([0 230] / 1e4);
 % 保存图像
-output_dir = fullfile(script_dir, 'outputpics');
-if ~exist(output_dir, 'dir')
-    mkdir(output_dir);
-end
-exportgraphics(gcf, fullfile(output_dir, 'zc_and_F1_comparison.png'), 'Resolution', 600);
-disp(['    图像已保存至: ', fullfile(output_dir, 'zc_and_F1_comparison.png')]);
+preprocess_pic = fullfile(output_dir, 'zc_and_F1_comparison.png');
+exportgraphics(gcf, preprocess_pic, 'Resolution', 600);
+copyfile(preprocess_pic, fullfile(report_pic_dir, 'zc_and_F1_comparison.png'));
+disp(['    图像已保存至: ', preprocess_pic]);
 
 %% 绘制 zc.. 和 F1 原始数据与仅归一化数据对比图
 f02 = figure(2);
@@ -161,5 +173,7 @@ legend([h7, h8], {'Raw', 'Normalized'}, 'Location', 'southeast', 'FontSize', 10)
 set(gca, 'FontName', 'Times New Roman', 'FontSize', 12);
 xlim([0 230] / 1e4);
 % 保存对比方案图像
-exportgraphics(gcf, fullfile(output_dir, 'zc_and_F1_no_smoothing_comparison.png'), 'Resolution', 600);
-disp(['    对比图像已保存至: ', fullfile(output_dir, 'zc_and_F1_no_smoothing_comparison.png')]);
+no_smoothing_pic = fullfile(output_dir, 'zc_and_F1_no_smoothing_comparison.png');
+exportgraphics(gcf, no_smoothing_pic, 'Resolution', 600);
+copyfile(no_smoothing_pic, fullfile(report_pic_dir, 'zc_and_F1_no_smoothing_comparison.png'));
+disp(['    对比图像已保存至: ', no_smoothing_pic]);

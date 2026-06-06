@@ -52,7 +52,7 @@ def main():
     print("=" * 60)
     print("  [Step] 加载平滑+归一化模型权重，并迁移到仅归一化数据")
     print("  [File] 源域权重 : models/lstm_best.pt, models/gru_best.pt")
-    print("  [File] 目标数据 : cleaned_dataset_no_smoothing.csv")
+    print("  [File] 目标数据 : data/processed/cleaned_dataset_no_smoothing.csv")
     print("-" * 60)
 
     MODEL_DIR.mkdir(exist_ok=True)
