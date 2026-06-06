@@ -6,10 +6,8 @@
 
 # Generated images
 models/
-outputdata/
-outputpics/
-cleaned_dataset.csv
-cleaned_dataset_no_smoothing.csv
+outputs/
+data/processed/
 
 # Python
 __pycache__/
